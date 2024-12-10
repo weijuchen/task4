@@ -465,12 +465,12 @@ def view_current_pm25_MY_button():
 
     # 儲存為 JPG 圖檔
     plt.tight_layout()
-    plt.savefig("pm25_MY_chart.jpg", format="jpg", dpi=300)
+    plt.savefig("pm25_MY_last_10hours_chart.jpg", format="jpg", dpi=300)
     plt.show()
     # print("圖表已經成功儲存！")
-    msg = "折線圖成功繪製，檔名為pm25_MY_current_chart.jpg，存放於目前資料夾"
+    msg = "折線圖成功繪製，檔名為pm25_MY_last_10hours_chart.jpg，存放於目前資料夾"
     strVar1.set(msg)
-    print("目前折線圖成功繪製，檔名為pm25_MY_current_chart.jpg，存放於目前資料夾")
+    print("目前折線圖成功繪製，檔名為pm25_MY_last_10hours_chart.jpg，存放於目前資料夾")
 
 
 def download_SG_pm25():
@@ -554,7 +554,7 @@ def click_plot_pm25_SG_button():
 
 
 root = tk.Tk()
-root.title("GUI Ver1 @v0.04 2024-11-27")
+root.title("GUI Ver1 @v0.05 2024-12-11")
 root.geometry("800x400")
 
 
@@ -811,7 +811,7 @@ button3_2.grid(column=1, row=4, padx=5, pady=10)
 
 button3_3 = tk.Button(
     tab3,
-    text="View Current PM2.5 ",
+    text="Last 10 Hours PM2.5 Data",
     font=("Arial", 16),
     command=lambda: view_current_pm25_MY_button(),
     # command=lambda: print("Page 3 按鈕 3 被點擊"),

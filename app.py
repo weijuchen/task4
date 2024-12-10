@@ -55,6 +55,8 @@ location_data = {
 
 
 geocoding=[('Kuala Lumpur', 3.1516964, 101.6942371),  ('Ipoh', 4.5986817, 101.0900236), ('Malacca', 2.1942647, 102.2486651),('Penang', 5.2834958,100.4810318)]
+
+
 # geocoding=[('Kuala Lumpur', 3.1516964, 101.6942371),  ('Ipoh', 4.5986817, 101.0900236), ('Malacca', 2.1942647, 102.2486651)]
 # geocoding_SG=[('Singapore',1.2899175, 103.8519072)]
 
@@ -399,6 +401,78 @@ def click_plot_pm25_MY_button():
     print("目前折線圖成功繪製，檔名為pm25_MY_chart.jpg，存放於目前資料夾")
 
 
+def view_current_pm25_MY_button():
+    now = datetime.now()
+    start_time=now-timedelta(hours=10)
+    
+   
+    start_date_MY_unix=int(start_time.timestamp())
+    print(start_date_MY_unix)
+    end_date_MY_unix=int(now.timestamp())
+    # start_date_MY_unix=startDateConvertUnix(formatted_date)
+    # end_date_MY_unix=endDateConvertUnix(formatted_start_time)   
+    # print(formatted_date)
+    for name, lat,lon in geocoding:
+        if name==selected_city:
+            lat_MY=lat
+            lon_MY=lon
+    url=f"http://api.openweathermap.org/data/2.5/air_pollution/history?lat={lat_MY}&lon={lon_MY}&start={start_date_MY_unix}&end={end_date_MY_unix}&appid={open_weather_key}"        
+    r = requests.get(url)
+    print(r.json())
+    data = {}
+    for time in r.json()["list"]:
+        data[time["dt"]] = time["components"]["pm2_5"]
+        # print("here is the data",data)
+    pm25 = data
+    with open("pm25_MY_current.csv", "w") as f:
+        writer = csv.writer(f)
+        for time, value in pm25.items():
+            writer.writerow([time, value]) 
+    print("使用者下載目前Malaysia PM2.5資料並存成CSV檔案，檔名為pm25_MY_current.csv，存放於目前資料夾")          
+    df_MY_data = pd.read_csv('pm25_MY_current.csv', header=None, names=['Time', 'pm25'])
+    df = pd.DataFrame(df_MY_data)
+    df['Time'] = pd.to_datetime(df['Time'],unit='s')
+
+    df['Time'] = df['Time'].dt.tz_localize('UTC')
+
+    df['Time']=df['Time'].dt.tz_convert('Asia/Singapore').dt.tz_localize(None)
+    df.to_csv("pm_25_MY_current_date.csv", index=False)
+    print("testing df",df)
+
+    # 繪製折線圖
+    plt.figure(figsize=(10, 5))
+    plt.plot(df['Time'], df['pm25'], marker='o', linestyle='-', label='PM2.5 Value')
+
+    # 添加圖表細節
+    plt.xlabel('Time')  # X 軸標籤
+    plt.ylabel('PM2.5')  # Y 軸標籤
+    plt.title(f'PM2.5 Data in {selected_city} Over Time')  # 圖表標題
+    plt.grid(True)  # 顯示網格
+    plt.legend()  # 顯示圖例
+
+
+
+    plt.gca().xaxis.set_major_locator(mdates.HourLocator(interval=1))
+    # plt.gca().xaxis.set_major_locator(mdates.MinuteLocator(interval=60))
+    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d %H:%M:%S"))
+
+    plt.xticks(rotation=90)  # 調整 X 軸標籤角度以便顯示時間
+    plt.tight_layout()  # 自動調整佈局
+
+    # 顯示圖表
+    plt.show()
+
+
+    # 儲存為 JPG 圖檔
+    plt.tight_layout()
+    plt.savefig("pm25_MY_chart.jpg", format="jpg", dpi=300)
+    plt.show()
+    # print("圖表已經成功儲存！")
+    msg = "折線圖成功繪製，檔名為pm25_MY_current_chart.jpg，存放於目前資料夾"
+    strVar1.set(msg)
+    print("目前折線圖成功繪製，檔名為pm25_MY_current_chart.jpg，存放於目前資料夾")
+
+
 def download_SG_pm25():
     start_date_SG = cal_SG_start.get_date()
     end_date_SG = cal_SG_end.get_date()
@@ -721,7 +795,7 @@ button3_1 = tk.Button(
     command=lambda: download_Malaysia_pm25(),
     # command=lambda: print("Page 3 按鈕 1 被點擊"),
 )
-button3_1.grid(column=0, row=4, padx=10, pady=10)
+button3_1.grid(column=0, row=4, padx=5, pady=10)
 
 
 button3_2 = tk.Button(
@@ -732,9 +806,18 @@ button3_2 = tk.Button(
     # command=lambda: print("Page 3 按鈕 2 被點擊"),
 )
 # button2_2.pack(pady=20)
-button3_2.grid(column=1, row=4, padx=10, pady=10)
+button3_2.grid(column=1, row=4, padx=5, pady=10)
 
 
+button3_3 = tk.Button(
+    tab3,
+    text="View Current PM2.5 ",
+    font=("Arial", 16),
+    command=lambda: view_current_pm25_MY_button(),
+    # command=lambda: print("Page 3 按鈕 3 被點擊"),
+)
+# button2_2.pack(pady=20)
+button3_3.grid(column=2, row=4, padx=5, pady=10)
 
 label3 = tk.Label(
     master=tab3,

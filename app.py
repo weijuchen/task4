@@ -403,7 +403,7 @@ def click_plot_pm25_MY_button():
 
 def view_current_pm25_MY_button():
     now = datetime.now()
-    start_time=now-timedelta(hours=10)
+    start_time=now-timedelta(hours=11)
     
    
     start_date_MY_unix=int(start_time.timestamp())

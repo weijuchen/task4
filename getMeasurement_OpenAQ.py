@@ -29,15 +29,14 @@ r = requests.get(url, headers=headers)
 
 data={}
 if r.status_code == 200:
-    if r.json()["results"][0]["parameter"]["id"]==2:
-        for measurement in r.json()['results']:
+    for measurement in r.json()['results']:
+        if measurement["parameter"]["id"]==2:
             data[measurement["period"]['datetimeFrom']["utc"]]=measurement["value"]
-        pm25 = data
-        with open("pm25.csv", "w") as f:
-            writer = csv.writer(f)
-            for time, value in pm25.items():
-                writer.writerow([time, value])
-    else:
-        print("Sensors do not provide PM2.5 data.")            
-
-
+    pm25 = data
+    with open("pm25.csv", "w") as f:
+        writer = csv.writer(f)
+        for time, value in pm25.items():
+            writer.writerow([time, value])
+else:
+    print("r.status_code != 200")                
+     
